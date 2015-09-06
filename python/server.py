@@ -25,17 +25,18 @@ def analyzeVoice():
 
     voiceRaw = request.files.get('voiceRaw', None)
     
-    # accept only filetypes that bleh
-    #if voiceRaw is None or not voiceRaw.filename.endswith(('.m4a', '.amr', '.wav')):
-    #return 'Invalid filetype or no file uploaded: Supported suffixes: .m4a .amr .wav', 400
+    # accept only file types that we care about (???)
+    if voiceRaw is None or not voiceRaw.filename.endswith(('.m4a', '.amr', '.wav')):
+        return 'Invalid filetype or no file uploaded: Supported suffixes: .m4a .amr .wav', 400
     
     # convert speech from .amr to .wav format
-    #print(voiceRaw.__dict__)
+    print(voiceRaw.__dict__)
 
     # convert speech to text
     # Audio files larger than 4MB are required to be sent in streaming mode (chunked transfer-encoding). 
     # Streaming audio size limit is 100 MB.
-    audio = open('./yeah.wav', 'rb')
+
+    # voiceRaw = open('./yeah.wav', 'rb')  # for debugging
 
     print('##################')
     print('# start session  #')
@@ -44,7 +45,6 @@ def analyzeVoice():
         r1 = requests.post(config.speech2text.get('url'), 
             auth=(config.speech2text.get('username'), config.speech2text.get('password'))
         )
-        print(r1.text)
     except(IOError):
         return 'Server error: %r' % IOError, 500
     # successfully retrieved response from IBM
@@ -57,8 +57,6 @@ def analyzeVoice():
     recognize_url = first_hit.get('recognize')
     observe_url = first_hit.get('observe_result')
     recognize_cookie_session = {'SESSIONID': r1.cookies.get_dict()['SESSIONID']}
-    print(recognize_url)
-    print(recognize_cookie_session)
     print('##################')
     print('# ask to recog   #')
     print('##################')
@@ -67,7 +65,7 @@ def analyzeVoice():
         headers={'Content-Type': 'audio/wav'}, 
         cookies=r1.cookies.get_dict(),
         auth=(config.speech2text.get('username'), config.speech2text.get('password')),
-        data=audio,
+        data=voiceRaw,
         params={'timestamps':True, 'word_confidence':True})
     except(IOError):
         return 'Server error: %r' % IOError, 500
