@@ -28,7 +28,7 @@ def databaseEntry(jsonText):
 @app.route('/latest')
 def getLatest():
     url = "http://localhost:64210/api/v1/query/gremlin"
-    r = requests.post(url, data="g.V(\"Article\").In().GetLimit(16)")
+    r = requests.post(url, data="g.V(\"Article\").In().GetLimit(1)")
     print r.text
     print r.json
     return r.text
