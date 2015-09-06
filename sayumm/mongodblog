@@ -1,0 +1,15 @@
+2015-09-06T03:43:17.405-0400 I JOURNAL  [initandlisten] journal dir=/data/db/journal
+2015-09-06T03:43:17.407-0400 I JOURNAL  [initandlisten] recover : no journal files present, no recovery needed
+2015-09-06T03:43:17.445-0400 I JOURNAL  [durability] Durability thread started
+2015-09-06T03:43:17.445-0400 I CONTROL  [initandlisten] MongoDB starting : pid=56933 port=27017 dbpath=/data/db 64-bit host=RChoi-Air.local
+2015-09-06T03:43:17.445-0400 I JOURNAL  [journal writer] Journal writer thread started
+2015-09-06T03:43:17.446-0400 I CONTROL  [initandlisten] db version v3.0.3
+2015-09-06T03:43:17.446-0400 I CONTROL  [initandlisten] git version: nogitversion
+2015-09-06T03:43:17.447-0400 I CONTROL  [initandlisten] build info: Darwin yosemitevm.local 14.3.0 Darwin Kernel Version 14.3.0: Mon Mar 23 11:59:05 PDT 2015; root:xnu-2782.20.48~5/RELEASE_X86_64 x86_64 BOOST_LIB_VERSION=1_49
+2015-09-06T03:43:17.447-0400 I CONTROL  [initandlisten] allocator: system
+2015-09-06T03:43:17.447-0400 I CONTROL  [initandlisten] options: { processManagement: { fork: true }, systemLog: { destination: "file", path: "./mongodblog" } }
+2015-09-06T03:43:17.465-0400 I NETWORK  [initandlisten] waiting for connections on port 27017
+2015-09-06T04:17:34.210-0400 I NETWORK  [initandlisten] connection accepted from 127.0.0.1:57612 #1 (1 connection now open)
+2015-09-06T04:17:37.916-0400 I NETWORK  [initandlisten] connection accepted from 127.0.0.1:57613 #2 (2 connections now open)
+2015-09-06T04:18:09.816-0400 I NETWORK  [conn2] end connection 127.0.0.1:57613 (1 connection now open)
+2015-09-06T04:18:09.930-0400 I NETWORK  [conn1] end connection 127.0.0.1:57612 (0 connections now open)
