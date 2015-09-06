@@ -1,6 +1,6 @@
 from flask import Flask, request, abort, jsonify
 
-import analyses, config, time, requests, json, wave, os
+import analyses, config, time, requests, json, wave, os ,requests
 
 from alchemyapi_python.alchemyapi import AlchemyAPI
 
@@ -8,10 +8,21 @@ app = Flask(__name__)
 alchemyapi = AlchemyAPI()
 s = {}
 
-
 @app.route('/')
 def hello_world():
     return 'Built at PennApps XII 2015! Upload a .wav file to /analyze.'
+
+def databaseEntry(jsonText):
+    data = {
+        'subject': 'Database',
+        'predicate' : 'get_entry',
+        'object': jsonText
+    }
+
+    url = "http://localhost:64210/api/v1/write"
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    r = requests.post(url, data=json.dumps([data]), headers=headers)
+    print r
 
 
 @app.route('/analyze', methods=['POST'])
@@ -19,14 +30,14 @@ def analyzeVoice():
     results = {}
 
     voiceRaw = request.files.get('voiceRaw', None)
-    #voicePanel = request.params.get('panel_data')
-    #print(voicePanel)
-    #try:
-        #panel_data = json.loads(voicePanel)
-        #results['panel_data'] = panel_data
-    #except(TypeError):
-    #    print(TypeError.__dict__)
-    #    return 'Server error while decoding json response from Android app (for panel data)', 500
+    voicePanel = request.form.get('panels')
+    print(voicePanel)
+    try:
+        panel_data = json.loads(voicePanel)
+        results['panel_data'] = panel_data
+    except(TypeError):
+       print(TypeError.__dict__)
+       return 'Server error while decoding json response from Android app (for panel data)', 500
 
 
 
@@ -85,10 +96,12 @@ def analyzeVoice():
     voice_results = voice_textified['results']
     for alternatives_obj in voice_results:
         for timestamps_obj in alternatives_obj['alternatives']:
-            for timestamp in timestamps_obj['timestamps']:
-                is_talking.append((timestamp[0], timestamp[1], timestamp[2]))  # [ (word, startTime, endTime) ]
-            for word_confidence in timestamps_obj['word_confidence']: 
-                transcript.append((word_confidence[0], word_confidence[1]))  # [ (word, confidence) ]
+            if (alternatives_obj['alternatives']) is not None:
+                for timestamp in timestamps_obj['timestamps']:
+                    is_talking.append((timestamp[0], timestamp[1], timestamp[2]))  # [ (word, startTime, endTime) ]
+            if(timestamps_obj.get('word_confidence') is not None):
+                for word_confidence in timestamps_obj.get('word_confidence'):
+                        transcript.append((word_confidence[0], word_confidence[1]))  # [ (word, confidence) ]]
 
     results['transcript'] = transcript 
     results['word_times'] = is_talking 
@@ -123,6 +136,7 @@ def analyzeVoice():
     print('# results        #')
     print('##################\n')
     print(results)
+    databaseEntry(json.dumps(results))
     return jsonify(results), 200
 
 if __name__ == '__main__':
