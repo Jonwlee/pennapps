@@ -1,17 +1,12 @@
-#from requests_futures.sessions import FuturesSession
 from flask import Flask, request, abort, jsonify
-#from concurrent.futures import ThreadPoolExecutor
-#from signal import signal, SIGPIPE, SIG_DFL
 
-import analyses, config, time, requests, json
+import analyses, config, time, requests, json, wave, os
 
 from alchemyapi_python.alchemyapi import AlchemyAPI
 
-#signal(SIGPIPE,SIG_DFL) 
 app = Flask(__name__)
 alchemyapi = AlchemyAPI()
 s = {}
-#session = FuturesSession(executor=ThreadPoolExecutor(max_workers=4))
 
 
 @app.route('/')
@@ -35,6 +30,9 @@ def analyzeVoice():
     # convert speech to text
     # Audio files larger than 4MB are required to be sent in streaming mode (chunked transfer-encoding). 
     # Streaming audio size limit is 100 MB.
+    # wave_file = open('./test.wav', 'w')
+    print(voiceRaw.filename)
+    voiceRaw.save('./' + voiceRaw.filename)
 
     # voiceRaw = open('./yeah.wav', 'rb')  # for debugging
 
@@ -74,6 +72,13 @@ def analyzeVoice():
     except(TypeError):
         return 'Server error while decoding json response from Watson while uploading audio: %r' % TypeError, 500
 
+    print('##################')
+    print('#  DO SOME MATH  #')
+    print('##################\n')
+    wpm = 0
+    upm = 0
+
+    print(wpm)
 
 
 
