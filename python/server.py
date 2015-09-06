@@ -32,7 +32,7 @@ def analyzeVoice():
     # Streaming audio size limit is 100 MB.
     # wave_file = open('./test.wav', 'w')
     print(voiceRaw.filename)
-    voiceRaw.save('./' + voiceRaw.filename)
+    voiceRaw.save('./x.wav')
 
     # voiceRaw = open('./yeah.wav', 'rb')  # for debugging
 
@@ -64,7 +64,7 @@ def analyzeVoice():
         cookies=r1.cookies.get_dict(),
         auth=(config.speech2text.get('username'), config.speech2text.get('password')),
         data=voiceRaw,
-        params={'timestamps':True, 'word_confidence':True})
+        params={'timestamps':True, 'word_confidence':True, 'continuous': True})
         voice_textified = json.loads(r2.text)
         print(voice_textified)
     except(IOError):
@@ -86,7 +86,7 @@ def analyzeVoice():
     print('##################')
     print('sentiment analysis')
     print('##################\n')
-    results['sentiment_analysis'] = analyses.tone_analyze(voiceText)
+    results['sentiment_analysis'] = analyses.tone_analyze(voice_textified)
     
     print('\n\n##################')
     print('# results        #')
