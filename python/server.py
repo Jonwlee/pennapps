@@ -24,6 +24,15 @@ def databaseEntry(jsonText):
     r = requests.post(url, data=json.dumps([data]), headers=headers)
     print r
 
+#@app.route('/latest', methods=['G'])
+@app.route('/latest')
+def getLatest():
+    url = "http://localhost:64210/api/v1/query/gremlin"
+    r = requests.post(url, data="g.V(\"Article\").In().GetLimit(16)")
+    print r.text
+    print r.json
+    return r.text
+
 
 @app.route('/analyze', methods=['POST'])
 def analyzeVoice():
