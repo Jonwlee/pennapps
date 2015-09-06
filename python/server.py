@@ -23,16 +23,10 @@ def analyzeVoice():
     # accept only file types that we care about (???)
     if voiceRaw is None or not voiceRaw.filename.endswith(('.wav')):
         return 'Invalid filetype or no file uploaded: Supported suffixes: .m4a .amr .wav', 400
-    
-    # convert speech from .amr to .wav format
-    print(voiceRaw.__dict__)
 
     # convert speech to text
     # Audio files larger than 4MB are required to be sent in streaming mode (chunked transfer-encoding). 
     # Streaming audio size limit is 100 MB.
-    # wave_file = open('./test.wav', 'w')
-    print(voiceRaw.filename)
-    voiceRaw.save('./x.wav')
 
     # voiceRaw = open('./yeah.wav', 'rb')  # for debugging
 
