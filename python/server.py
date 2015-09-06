@@ -19,13 +19,14 @@ def analyzeVoice():
     results = {}
 
     voiceRaw = request.files.get('voiceRaw', None)
-    voiceRaw = request.text
-    try:
-        panel_data = json.loads(request.text)
-        results['panel_data'] = panel_data
-    except(TypeError):
-        print(TypeError.__dict__)
-        return 'Server error while decoding json response from Android app (for panel data)', 500
+    #voicePanel = request.params.get('panel_data')
+    #print(voicePanel)
+    #try:
+        #panel_data = json.loads(voicePanel)
+        #results['panel_data'] = panel_data
+    #except(TypeError):
+    #    print(TypeError.__dict__)
+    #    return 'Server error while decoding json response from Android app (for panel data)', 500
 
 
 
@@ -43,7 +44,7 @@ def analyzeVoice():
     print('# start session  #')
     print('##################\n')
     try:
-        r1 = requests.post(config.speech2text.get('url'), 
+        r1 = requests.post(config.speech2text.get('url'),
             auth=(config.speech2text.get('username'), config.speech2text.get('password'))
         )
     except(IOError):
@@ -81,29 +82,34 @@ def analyzeVoice():
 
     transcript = []
     is_talking = []
+    voice_results = voice_textified['results']
+    for alternatives_obj in voice_results:
+        for timestamps_obj in alternatives_obj['alternatives']:
+            for timestamp in timestamps_obj['timestamps']:
+                is_talking.append((timestamp[0], timestamp[1], timestamp[2]))  # [ (word, startTime, endTime) ]
+            for word_confidence in timestamps_obj['word_confidence']: 
+                transcript.append((word_confidence[0], word_confidence[1]))  # [ (word, confidence) ]
 
-    for result in results:
-        for alt in result.alternatives:
-            for i in range(0,len(alt.timestamps)-1):
-            for ts in alt.timestamps:
-                transcript.append((alt.timestamps[i][0], alt.word_confidence[i][1]))  # [..., (word, confidence)]
-                word_times.append((alt.timestamps[i][1], alt.timestamps[i][2]))  # [..., (start, end)]
+    results['transcript'] = transcript 
+    results['word_times'] = is_talking 
 
-    results['transcript'] = transcript
-    results['word_times'] = is_talking
     words_count = len(transcript)
-    ums_count = len(transcript.filter(lambda x: x === 'nnnnn'))
-    last_word_end_time_in_sec = is_talking[-1][1]
+    ums_count = len([x[0] for x in transcript if x[0] == '%HESITATION' or x[0] == 'nnnnn'])
+    last_word_end_time_in_sec = is_talking[len(is_talking)-1][2]
+    first_word_start_time_in_sec = is_talking[0][1]
+    speech_length_in_min = (last_word_end_time_in_sec - first_word_start_time_in_sec)/60.0
 
     print('##################')
     print('#  DO SOME MATH  #')
     print('##################\n')
-    wpm = words_count/(last_word_end_time_in_sec/60)
-    upm = ums_count/(last_word_end_time_in_sec/60)
+    wpm = words_count/(speech_length_in_min)
+    upm = ums_count/(speech_length_in_min)
     results['wpm'] = wpm
     results['upm'] = upm
     results['words_total'] = words_count
     results['ums_total'] = ums_count
+    print('Length of transcript in minutes: %f' % speech_length_in_min)
+    results['duration'] = speech_length_in_min
     print('WPM: %f        UPM: %f' % (wpm, upm))
     print('Words: %d      Ums: %d' % (words_count, ums_count))
 
@@ -111,7 +117,7 @@ def analyzeVoice():
     print('##################')
     print('sentiment analysis')
     print('##################\n')
-    results['sentiment_analysis'] = analyses.tone_analyze(voice_textified)
+    results['sentiment'] = analyses.tone_analyze(voice_textified)
     
     print('\n\n##################')
     print('# results        #')
