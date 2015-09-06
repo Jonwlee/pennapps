@@ -19,7 +19,16 @@ def analyzeVoice():
     results = {}
 
     voiceRaw = request.files.get('voiceRaw', None)
-    
+    voiceRaw = request.text
+    try:
+        panel_data = json.loads(request.text)
+        results['panel_data'] = panel_data
+    except(TypeError):
+        print(TypeError.__dict__)
+        return 'Server error while decoding json response from Android app (for panel data)', 500
+
+
+
     # accept only file types that we care about (???)
     if voiceRaw is None or not voiceRaw.filename.endswith(('.wav')):
         return 'Invalid filetype or no file uploaded: Supported suffixes: .m4a .amr .wav', 400
