@@ -16,7 +16,7 @@ s = {}
 
 @app.route('/')
 def hello_world():
-    return 'Built at PennApps XII 2015! Upload an m4a or amr or wav to /analyze.'
+    return 'Built at PennApps XII 2015! Upload a .wav file to /analyze.'
 
 
 @app.route('/analyze', methods=['POST'])
@@ -26,7 +26,7 @@ def analyzeVoice():
     voiceRaw = request.files.get('voiceRaw', None)
     
     # accept only file types that we care about (???)
-    if voiceRaw is None or not voiceRaw.filename.endswith(('.m4a', '.amr', '.wav')):
+    if voiceRaw is None or not voiceRaw.filename.endswith(('.wav')):
         return 'Invalid filetype or no file uploaded: Supported suffixes: .m4a .amr .wav', 400
     
     # convert speech from .amr to .wav format
@@ -40,7 +40,7 @@ def analyzeVoice():
 
     print('##################')
     print('# start session  #')
-    print('##################')
+    print('##################\n')
     try:
         r1 = requests.post(config.speech2text.get('url'), 
             auth=(config.speech2text.get('username'), config.speech2text.get('password'))
@@ -59,7 +59,7 @@ def analyzeVoice():
     recognize_cookie_session = {'SESSIONID': r1.cookies.get_dict()['SESSIONID']}
     print('##################')
     print('# ask to recog   #')
-    print('##################')
+    print('##################\n')
     try:
         r2 = requests.post(recognize_url,
         headers={'Content-Type': 'audio/wav'}, 
@@ -67,23 +67,25 @@ def analyzeVoice():
         auth=(config.speech2text.get('username'), config.speech2text.get('password')),
         data=voiceRaw,
         params={'timestamps':True, 'word_confidence':True})
+        voice_textified = json.loads(r2.text)
+        print(voice_textified)
     except(IOError):
         return 'Server error: %r' % IOError, 500
+    except(TypeError):
+        return 'Server error while decoding json response from Watson while uploading audio: %r' % TypeError, 500
 
-    print(r2.text)
 
-    voiceText = 'hi there and would you like something to drink'
+
 
     # sentiment analysis
-    
     print('##################')
     print('sentiment analysis')
-    print('##################')
+    print('##################\n')
     results['sentiment_analysis'] = analyses.tone_analyze(voiceText)
     
-    print('##################')
+    print('\n\n##################')
     print('# results        #')
-    print('##################')
+    print('##################\n')
     print(results)
     return jsonify(results), 200
 
