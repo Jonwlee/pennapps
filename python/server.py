@@ -67,14 +67,36 @@ def analyzeVoice():
         return 'Server error while decoding json response from Watson while uploading audio: %r' % TypeError, 500
 
     print('##################')
+    print('#  CONCATENATION #')
+    print('##################\n')
+
+    transcript = []
+    is_talking = []
+
+    for result in results:
+        for alt in result.alternatives:
+            for i in range(0,len(alt.timestamps)-1):
+            for ts in alt.timestamps:
+                transcript.append((alt.timestamps[i][0], alt.word_confidence[i][1]))  # [..., (word, confidence)]
+                word_times.append((alt.timestamps[i][1], alt.timestamps[i][2]))  # [..., (start, end)]
+
+    results['transcript'] = transcript
+    results['word_times'] = is_talking
+    words_count = len(transcript)
+    ums_count = len(transcript.filter(lambda x: x === 'nnnnn'))
+    last_word_end_time_in_sec = is_talking[-1][1]
+
+    print('##################')
     print('#  DO SOME MATH  #')
     print('##################\n')
-    wpm = 0
-    upm = 0
-
-    print(wpm)
-
-
+    wpm = words_count/(last_word_end_time_in_sec/60)
+    upm = ums_count/(last_word_end_time_in_sec/60)
+    results['wpm'] = wpm
+    results['upm'] = upm
+    results['words_total'] = words_count
+    results['ums_total'] = ums_count
+    print('WPM: %f        UPM: %f' % (wpm, upm))
+    print('Words: %d      Ums: %d' % (words_count, ums_count))
 
     # sentiment analysis
     print('##################')
@@ -94,4 +116,3 @@ if __name__ == '__main__':
 
 def _request_transcription(text_to_transcribe):
     response = alchemyapi.sentiment("text", text_in)
-
